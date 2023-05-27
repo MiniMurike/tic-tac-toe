@@ -1,7 +1,3 @@
-table = [['-' for _ in range(3)] for _ in range(3)]  # Игровой стол в виде матрицы
-
-turn = True  # Очередь ходящего. True - нолики, False - крестики
-
 def print_table():
     """Печать игровой сетки"""
     for i in range(4):
@@ -30,12 +26,40 @@ def print_exception(str_exception):
 def check():
     """Проверка на условие выйгрыша
     Возвращает True, если найден победитель"""
-    pass
+    for i in range(3):
+        if ((table[i][0] == table[i][1] == table[i][2] or   # Построчная проверка
+            table[0][i] == table[1][i] == table[2][i]) and  # Проверка по столбцам
+            table[i][i] != '-'):                            # Проверка на не "пустую" ячейку
+            return True
+    if ((table[0][0] == table[1][1] == table[2][2] or   # Проверка по главной диагонали
+        table[0][2] == table[1][1] == table[2][0]) and # Проверка по побочной диагонали
+        table[1][1] != '-'):
+        return True
 
+    if turn_count == 9:
+        return True
+
+    return False
+
+
+# ---------------------------------------------------------------------------------------
+
+table = [['-' for _ in range(3)] for _ in range(3)]  # Игровой стол в виде матрицы
+
+turn = True  # Очередь ходящего. True - нолики, False - крестики
+
+turn_count = 0  # Счётчик кол-ва ходов для ничьи
+
+# ---------------------------------------------------------------------------------------
 
 #  Начало тела
 while True:
     print_table()
+    if turn:
+        print('\nСейчас ходят нолики')
+    else:
+        print('\nСейчас ходят крестики')
+
     try:
         coords = input('\nВыберите клетку для хода в формате "0 0" (без ковычек), '
                         'где 1-е число - номер строки, а 2-е число - номер столбца: ').split(' ')
@@ -52,8 +76,16 @@ while True:
 
         table[coords[0]][coords[1]] = 'O' if turn else 'X'  # Заполнение ячейки
         turn = not turn  # Переход хода
+        turn_count += 1
 
         if check():
             break
     except Exception as e:
         print_exception(str(e))
+
+win_result = 'Нолики' if not turn else 'Крестики'
+print_table()
+if turn_count != 9:
+    print('Победили %s!' % win_result)
+else:
+    print('Ничья!')
